@@ -1,7 +1,7 @@
 
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-API_TOKEN = '7177666983:AAHgWg6yZKhaJ-BZRACUkxi68bfgDrj2SvI'
+API_TOKEN = '7177666983:AAGP2uAg62Tr33Ej0CU5ge4Wx_DMohll-xg'
 
 # Список серийных номеров
 allowed_serials = {
@@ -149,7 +149,7 @@ import asyncio
 from aiogram import Bot, Dispatcher, types, executor
 
 # Инициализация
-TOKEN = "7177666983:AAHgWg6yZKhaJ-BZRACUkxi68bfgDrj2SvI"
+TOKEN = "7177666983:AAGP2uAg62Tr33Ej0CU5ge4Wx_DMohll-xg"
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
