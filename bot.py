@@ -145,5 +145,26 @@ async def waste_bin_solution(message: types.Message):
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
+from flask import Flask
+import threading
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "Bot is running!"
+
+def run_flask():
+    app.run(host='0.0.0.0', port=10000)
+
+if __name__ == "__main__":
+    threading.Thread(target=run_flask).start()
+    # Запуск бота
+    import asyncio
+    from aiogram import executor
+    from bot import dp  # Импортируй Dispatcher из своего кода
+
+    asyncio.run(executor.start_polling(dp, skip_updates=True))
+
 
 
