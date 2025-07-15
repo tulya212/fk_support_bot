@@ -143,10 +143,15 @@ async def waste_bin_solution(message: types.Message):
 
 # и так далее для других ошибок...
 
-if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
 from flask import Flask
 import threading
+import asyncio
+from aiogram import Bot, Dispatcher, types, executor
+
+# Инициализация
+TOKEN = "7177666983:AAHgWg6yZKhaJ-BZRACUkxi68bfgDrj2SvI"
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot)
 
 app = Flask(__name__)
 
@@ -157,14 +162,13 @@ def index():
 def run_flask():
     app.run(host='0.0.0.0', port=10000)
 
+@dp.message_handler(commands=["start"])
+async def start_cmd(message: types.Message):
+    await message.reply("Бот успешно запущен! ✅")
+
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()
-    # Запуск бота
-    import asyncio
-    from aiogram import executor
-    from bot import dp  # Импортируй Dispatcher из своего кода
-
-    asyncio.run(executor.start_polling(dp, skip_updates=True))
+    executor.start_polling(dp, skip_updates=True)
 
 
 
