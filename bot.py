@@ -110,7 +110,6 @@ async def problems_list(message: types.Message):
 # ——— Точечные инструкции по ошибкам ———
 
 @dp.message_handler(lambda m: "NO WATER" in m.text.upper())
-as# … (предыдущие импорты и регистрация меню) …
 
 @dp.message_handler(lambda msg: "F.ESPRSS.UNT.POS" in msg.text.upper() or "G.ESPRESSO UNIT" in msg.text.upper())
 async def espress_unit_error(message: types.Message):
