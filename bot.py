@@ -8,6 +8,8 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.utils.executor import start_webhook
+
 
 # файл для хранения верифицированных пользователей
 VERIFIED_FILE = 'verified.json'
@@ -174,29 +176,48 @@ async def no_water_error(message: types.Message):
 
 
 # ==== HTTP для Render (keep-alive) ====
-app = Flask(__name__)
-
-@app.route("/")
-def ping():
-    return "OK", 200
-
-def run_flask():
-    port = int(os.getenv("PORT", 10000))  # <- по умолчанию 10000
-    app.run(host="0.0.0.0", port=port)
-    
-# ==== Сброс webhook перед polling ====
-async def on_startup(dp: Dispatcher):
-    await bot.delete_webhook(drop_pending_updates=True)
-
-# ==== Точка входа ====
-if __name__ == "__main__":
-    
-    threading.Thread(target=run_flask, daemon=True).start()
-
-    
-    executor.start_polling(
-        dispatcher=dp,
-        skip_updates=True,
-        on_startup=lambda dp: bot.delete_webhook(drop_pending_updates=True)
-    )
+ # ==== HTTP для Render (keep-alive) ====
+ app = Flask(__name__)
+ 
+ @app.route("/")
+ def ping():
+     return "OK", 200
+ 
+-def run_flask():
+-    port = int(os.getenv("PORT", 10000))  # <- по умолчанию 10000
+-    app.run(host="0.0.0.0", port=port)
++def run_flask():
++    # Берём порт строго из переменной окружения PORT, которую даёт Render
++    port_str = os.getenv("PORT")
++    if not port_str:
++        raise RuntimeError("Не задана переменная окружения PORT")
++    port = int(port_str)
++    app.run(host="0.0.0.0", port=port)
+     
+ # ==== Сброс webhook перед polling ====
+ async def on_startup(dp):
+-    await bot.delete_webhook(drop_pending_updates=True)
++    # Удаляем любые остатки webhook и накопившиеся апдейты
++    await bot.delete_webhook(drop_pending_updates=True)
+ 
+ # ==== Точка входа ====
+ if __name__ == "__main__":
+-    
+-    threading.Thread(target=run_flask, daemon=True).start()
+-
+-    
+-    executor.start_polling(
+-        dispatcher=dp,
+-        skip_updates=True,
+-        on_startup=lambda dp: bot.delete_webhook(drop_pending_updates=True)
+-    )
++    # 1) Запускаем HTTP-сервер в фоне, чтобы Render увидел открытый порт
++    threading.Thread(target=run_flask, daemon=True).start()
++
++    # 2) Запускаем единственный polling, удалив вебхук перед стартом
++    executor.start_polling(
++        dispatcher=dp,
++        skip_updates=True,
++        on_startup=on_startup
++    )
 
