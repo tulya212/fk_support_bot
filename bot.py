@@ -144,6 +144,7 @@ async def problems_list(message: types.Message):
 @dp.message_handler(lambda msg: "F.ESPRSS.UNT.POS" in msg.text.upper() or "G.ESPRESSO UNIT" in msg.text.upper())
 async def espress_unit_error(message: types.Message):
     await message.answer(
+ "Для Azkoyen Vitro S1/S5:\n\n"
         "🔧 Обнаружена ошибка: F.ESPRSS.UNT.POS (G.ESPRESSO UNIT)\n\n"
         "❗ Это значит, что заварочный блок «застрял» между позициями или не может вернуться в исходное положение.\n\n"
         "🔍 Проверьте пошагово:\n"
@@ -169,6 +170,7 @@ async def espress_unit_error(message: types.Message):
 @dp.message_handler(lambda m: "F.MONEY SYSTEM" in m.text.upper(), state='*')
 async def money_system_error(message: types.Message):
     await message.answer(
+ "Для Azkoyen Vitro S1/S5:\n\n"
         "💰 Обнаружена ошибка: F.MONEY SYSTEM\n\n"
         "❗ Не пугайтесь — эта ошибка обычно ничего не значит и не влияет на работу.\n"
         "Просто нажмите **PROG/C**, чтобы сбросить её.\n\n"
@@ -179,6 +181,7 @@ async def money_system_error(message: types.Message):
 @dp.message_handler(lambda m: "WASTE BIN FULL" in m.text.upper(), state='*')
 async def waste_bin_full_error(message: types.Message):
     await message.answer(
+         "Для Azkoyen Vitro S1/S5:\n\n"
         "🗑 Обнаружена ошибка: WASTE BIN FULL\n\n"
         "❗ Счётчик отходов достиг максимума — аппарат не будет работать, пока его не сбросят.\n\n"
         "🔍 Проверьте и сбросьте счётчик пошагово:\n"
@@ -200,6 +203,7 @@ async def waste_bin_full_error(message: types.Message):
 @dp.message_handler(lambda msg: "NO WASTE BIN" in msg.text.upper())
 async def no_waste_bin_error(message: types.Message):
     await message.answer(
+         "Для Azkoyen Vitro S1/S5:\n\n"
         "🗑 Обнаружена ошибка: NO WASTE BIN\n\n"
         "❗ Аппарат не видит лоток для отходов.\n\n"
         "🔍 Проверьте пошагово:\n"
@@ -221,6 +225,7 @@ async def no_waste_bin_error(message: types.Message):
 @dp.message_handler(lambda m: "GRINDER JAM" in m.text.upper(), state='*')
 async def grinder_jam_error(message: types.Message):
     await message.answer(
+         "Для Azkoyen Vitro S1/S5:\n\n"
         "🔧 Обнаружена ошибка: GRINDER JAM\n\n"
         "❗ Зубья кофемолки заедают и не вращаются.\n\n"
         "🔍 Проверьте пошагово:\n"
@@ -239,6 +244,7 @@ async def grinder_jam_error(message: types.Message):
 @dp.message_handler(lambda m: "NO COFFEE BEANS" in m.text.upper(), state='*')
 async def no_coffee_beans_error(message: types.Message):
     await message.answer(
+         "Для Azkoyen Vitro S1/S5:\n\n"
         "🫘 Обнаружена ошибка: NO COFFEE BEANS\n\n"
         "❗ Аппарат не видит зёрна в бункере или не подаёт их в жернова.\n\n"
         "🔍 Проверьте пошагово:\n"
@@ -254,6 +260,7 @@ async def no_coffee_beans_error(message: types.Message):
 @dp.message_handler(lambda m: "FAIL WATER LEVEL" in m.text.upper(), state='*')
 async def fail_water_level_error(message: types.Message):
     await message.answer(
+         "Для Azkoyen Vitro S1/S5:\n\n"
         "💧 Обнаружена ошибка: FAIL WATER LEVEL\n\n"
         "❗ Аппарат не удаётся определить уровень воды в баке.\n\n"
         "🔍 Проверьте пошагово:\n"
@@ -285,6 +292,7 @@ async def fail_water_level_error(message: types.Message):
 @dp.message_handler(lambda msg: "NO WATER" in msg.text.upper())
 async def no_water_error(message: types.Message):
     await message.answer(
+         "Для Azkoyen Vitro S1/S5:\n\n"
         "💧 Обнаружена ошибка: NO WATER\n\n"
         "❗ Это означает, что автомат не может набрать воду.\n\n"
         "🔍 Проверьте пошагово:\n"
