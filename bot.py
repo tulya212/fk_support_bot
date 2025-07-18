@@ -5,9 +5,25 @@ from flask import Flask
 import threading
 import os
 
-API_TOKEN = '7177666983:AAGP2uAg62Tr33Ej0CU5ge4Wx_DMohll-xg'
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+import os
+from aiogram import Bot, Dispatcher
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.utils import executor
+
+TOKEN = os.getenv("BOT_TOKEN")
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot, storage=MemoryStorage())
+
+async def on_startup(dp: Dispatcher):
+    # сбрасываем любой webhook, если он был установлен
+    await bot.delete_webhook(drop_pending_updates=True)
+
+if __name__ == "__main__":
+    executor.start_polling(
+        dispatcher=dp,
+        skip_updates=True,
+        on_startup=on_startup
+    )
 
 # ─── Полный список серийных номеров ───
 allowed_serials = {
