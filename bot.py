@@ -24,6 +24,47 @@ if __name__ == "__main__":
         skip_updates=True,
         on_startup=on_startup
     )
+    import os
+import threading
+from aiogram import Bot, Dispatcher, types
+from aiogram.utils import executor
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from flask import Flask
+
+# ==== Telegram setup ====
+TOKEN = os.getenv("BOT_TOKEN")
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot, storage=MemoryStorage())
+
+@dp.message_handler(commands=["start"])
+async def cmd_start(message: types.Message):
+    # ваш /start handler
+    await message.answer("Привет!")
+
+async def on_startup(dp):
+    await bot.delete_webhook(drop_pending_updates=True)
+
+# ==== Flask setup ====
+app = Flask(__name__)
+
+@app.route("/")
+def ping():
+    return "OK", 200
+
+def run_flask():
+    port = int(os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+
+if __name__ == "__main__":
+    # 1) стартим Flask в отдельном потоке
+    threading.Thread(target=run_flask).start()
+    # 2) запускаем Telegram polling
+    executor.start_polling(
+        dispatcher=dp,
+        skip_updates=True,
+        on_startup=on_startup
+    )
+
 
 # ─── Полный список серийных номеров ───
 allowed_serials = {
