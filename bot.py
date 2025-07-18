@@ -1,72 +1,35 @@
+import os
+import threading
 
+from flask import Flask
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from flask import Flask
-import threading
-import os
-
-import os
-from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.utils import executor
 
+# ==== Настройка бота ====
 TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
-async def on_startup(dp: Dispatcher):
-    # сбрасываем любой webhook, если он был установлен
-    await bot.delete_webhook(drop_pending_updates=True)
+# ==== Клавиатуры ====
+main_menu = ReplyKeyboardMarkup(resize_keyboard=True).add("☕ Выбрать модель кофемашины")
+model_menu = ReplyKeyboardMarkup(resize_keyboard=True).add(
+    "Azkoyen Vitro S1", "Azkoyen Vitro S5",
+    "Jetinno JL22", "Jetinno JL24", "Jetinno JL300"
+)
+action_menu = ReplyKeyboardMarkup(resize_keyboard=True).add(
+    "📛 У меня неисправность!", "📘 Обучение и инструкция"
+).add("❓ Остались вопросы?")
+problem_menu = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2).add(
+    "🧠 Я знаю название ошибки",
+    "🧯 Пролив или протечка",
+    "🔌 Не включается",
+    "💧 NO WATER / нет воды",
+    "🗑 Слив отходов не работает",
+    "🔧 Заварочный блок (F.ESPRSS.UNT.POS)"
+)
 
-if __name__ == "__main__":
-    executor.start_polling(
-        dispatcher=dp,
-        skip_updates=True,
-        on_startup=on_startup
-    )
-    import os
-import threading
-from aiogram import Bot, Dispatcher, types
-from aiogram.utils import executor
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from flask import Flask
-
-# ==== Telegram setup ====
-TOKEN = os.getenv("BOT_TOKEN")
-bot = Bot(token=TOKEN)
-dp = Dispatcher(bot, storage=MemoryStorage())
-
-@dp.message_handler(commands=["start"])
-async def cmd_start(message: types.Message):
-    # ваш /start handler
-    await message.answer("Привет!")
-
-async def on_startup(dp):
-    await bot.delete_webhook(drop_pending_updates=True)
-
-# ==== Flask setup ====
-app = Flask(__name__)
-
-@app.route("/")
-def ping():
-    return "OK", 200
-
-def run_flask():
-    port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
-if __name__ == "__main__":
-    # 1) стартим Flask в отдельном потоке
-    threading.Thread(target=run_flask).start()
-    # 2) запускаем Telegram polling
-    executor.start_polling(
-        dispatcher=dp,
-        skip_updates=True,
-        on_startup=on_startup
-    )
-
-
-# ─── Полный список серийных номеров ───
+# ==== Список разрешённых серийников ====
 allowed_serials = {
     "0010258608", "0010289689", "0010289069", "0010289073",
     "0010289071", "0010289697", "0010289699", "0010289310",
@@ -104,26 +67,10 @@ allowed_serials = {
     "2503148216", "2412132984", "2412132780", "2412132847",
     "2412132983", "2412132947", "2412132875", "2412132981"
 }
-# ────────────────────────────────────────
 
 verified_users = set()
 
-# ——— Меню ——————————————————————————
-main_menu = ReplyKeyboardMarkup(resize_keyboard=True).add("☕ Выбрать модель кофемашины")
-model_menu = ReplyKeyboardMarkup(resize_keyboard=True).add(
-    "Azkoyen Vitro S1", "Azkoyen Vitro S5",
-    "Jetinno JL22", "Jetinno JL24", "Jetinno JL300"
-)
-action_menu = ReplyKeyboardMarkup(resize_keyboard=True).add(
-    "📛 У меня неисправность!", "📘 Обучение и инструкция"
-).add("❓ Остались вопросы?")
-problem_menu = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2).add(
-    "🧠 Я знаю название ошибки", "🧯 Пролив или протечка", "🔌 Не включается",
-    "💧 NO WATER / нет воды", "🗑 Слив отходов не работает",
-    "🔧 Заварочный блок (F.ESPRSS.UNT.POS)"
-)
-
-# ——— Handlers ——————————————————————
+# ==== Handlers ====
 
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message):
@@ -147,26 +94,25 @@ async def choose_model(message: types.Message):
 
 @dp.message_handler(lambda m: m.text.startswith(("Azkoyen", "Jetinno")))
 async def model_selected(message: types.Message):
-    text = (
-        "ℹ️ ВАЖНО\n\n"
-        "На экране Azkoyen должен быть восклицательный знак — это ошибка.\n"
-        "Откройте дверь и нажмите PROG/C, посмотрите справа на экране.\n\n"
-        "Если нет восклицательного знака — ошибок нет. Иначе перезагрузите."
-    ) if "Azkoyen" in message.text else (
-        "ℹ️ ВАЖНО\n\n"
-        "Нажмите и удерживайте логотип Fastkava в углу, введите пароль.\n"
-        "Смотрите журнал ошибок справа."
-    )
+    if "Azkoyen" in message.text:
+        text = (
+            "ℹ️ ВАЖНО\n\n"
+            "На экране Azkoyen должен быть восклицательный знак — это ошибка.\n"
+            "Откройте дверь и нажмите PROG/C, посмотрите справа на экране.\n\n"
+            "Если нет восклицательного знака — ошибок нет. Иначе перезагрузите."
+        )
+    else:
+        text = (
+            "ℹ️ ВАЖНО\n\n"
+            "Нажмите и удерживайте логотип Fastkava в углу, введите пароль.\n"
+            "Смотрите журнал ошибок справа."
+        )
     await message.answer(text)
     await message.answer("Что делаем дальше?", reply_markup=action_menu)
 
 @dp.message_handler(lambda m: m.text == "📛 У меня неисправность!")
 async def problems_list(message: types.Message):
     await message.answer("Выберите проблему:", reply_markup=problem_menu)
-
-# ——— Точечные инструкции по ошибкам ———
-
-@dp.message_handler(lambda m: "NO WATER" in m.text.upper())
 
 @dp.message_handler(lambda msg: "F.ESPRSS.UNT.POS" in msg.text.upper() or "G.ESPRESSO UNIT" in msg.text.upper())
 async def espress_unit_error(message: types.Message):
@@ -230,18 +176,28 @@ async def no_water_error(message: types.Message):
         "📸 Если даже после этого вода не идёт — пришлите фото канистры и трубок."
     )
 
-# ——————————————————————————
-
+# ==== HTTP для Render (keep-alive) ====
 app = Flask(__name__)
+
 @app.route("/")
-def index():
-    return "Bot is running!"
+def ping():
+    return "OK", 200
 
 def run_flask():
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 10000)))
+    port = int(os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
+# ==== Сброс webhook перед polling ====
+async def on_startup(dp: Dispatcher):
+    await bot.delete_webhook(drop_pending_updates=True)
+
+# ==== Точка входа ====
 if __name__ == "__main__":
+    # 1) HTTP-сервер для Render
     threading.Thread(target=run_flask, daemon=True).start()
-    executor.start_polling(dp, skip_updates=True)
-
-
+    # 2) Запуск long-polling
+    executor.start_polling(
+        dispatcher=dp,
+        skip_updates=True,
+        on_startup=on_startup
+    )
