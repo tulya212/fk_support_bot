@@ -181,19 +181,22 @@ def ping():
     return "OK", 200
 
 def run_flask():
-    port = int(os.getenv("PORT", 5000))
+    port = int(os.getenv("PORT", 10000))  # <- по умолчанию 10000
     app.run(host="0.0.0.0", port=port)
-
+    
 # ==== Сброс webhook перед polling ====
 async def on_startup(dp: Dispatcher):
     await bot.delete_webhook(drop_pending_updates=True)
 
 # ==== Точка входа ====
 if __name__ == "__main__":
+    
     threading.Thread(target=run_flask, daemon=True).start()
+
+    
     executor.start_polling(
         dispatcher=dp,
         skip_updates=True,
-        on_startup=on_startup
+        on_startup=lambda dp: bot.delete_webhook(drop_pending_updates=True)
     )
 
